@@ -4,7 +4,7 @@ const router = express.Router();
 let tasks = [];
 
 router.get('/',(req,res)=>{
-    res.json(tasks);
+    res.status(200).json({data:tasks});
 });
 
 router.post('/',(req,res)=>{
@@ -23,7 +23,10 @@ router.post('/',(req,res)=>{
     };
 
     tasks.push(newTask);
-    res.status(201).json(newTask);
+    res.status(201).json({
+        data:tasks,
+        newTask
+    });
 });
 
 router.put('/:id',(req,res)=>{
@@ -40,10 +43,25 @@ router.put('/:id',(req,res)=>{
         ...tasks[taskIndex],
         title: title || tasks[taskIndex].title,
         description: description || tasks[taskIndex].description,
-        completed: completed || tasks[taskIndex].completed
+        completed: completed !== undefined ? completed : tasks[taskIndex].completed,
     };
 
-    res.json(tasks[taskIndex]);
+    res.status(200).json({
+        data:tasks,
+        taskUpdated:tasks[taskIndex]});
+});
+
+router.delete('/:id',(req,res)=>{
+    const {id} = req.params;
+
+    const taskIndex = tasks.findIndex(task => task.id == id);
+    if(taskIndex===-1){
+        return res.status(404).json({error:'Tarea no encontrada'})
+    };
+
+    tasks.splice(taskIndex,1);
+    
+    res.status(200).json({data:tasks});
 })
 
 
